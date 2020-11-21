@@ -1,0 +1,74 @@
+{
+	"name": "employee_mssql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_Ms_SQL_Server",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/MSSQL"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "employee_name",
+				"type": "varchar"
+			},
+			{
+				"name": "birthdate",
+				"type": "date"
+			},
+			{
+				"name": "birthplace",
+				"type": "varchar"
+			},
+			{
+				"name": "martial_status",
+				"type": "varchar"
+			},
+			{
+				"name": "sex",
+				"type": "varchar"
+			},
+			{
+				"name": "child",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "working_year",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "job_position",
+				"type": "varchar"
+			},
+			{
+				"name": "job_level",
+				"type": "varchar"
+			},
+			{
+				"name": "work_location",
+				"type": "varchar"
+			},
+			{
+				"name": "created_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employee"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,73 @@
+{
+	"name": "employee_excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_LocalFolder",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/LOCALFOLDER"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "employee.xlsx"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "String"
+			},
+			{
+				"name": "employee_name",
+				"type": "String"
+			},
+			{
+				"name": "birthdate",
+				"type": "String"
+			},
+			{
+				"name": "birthplace",
+				"type": "String"
+			},
+			{
+				"name": "martial_status",
+				"type": "String"
+			},
+			{
+				"name": "sex",
+				"type": "String"
+			},
+			{
+				"name": "child",
+				"type": "String"
+			},
+			{
+				"name": "working_year",
+				"type": "String"
+			},
+			{
+				"name": "job_position",
+				"type": "String"
+			},
+			{
+				"name": "job_level",
+				"type": "String"
+			},
+			{
+				"name": "work_location",
+				"type": "String"
+			},
+			{
+				"name": "created_date",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

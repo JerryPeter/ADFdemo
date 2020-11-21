@@ -1,0 +1,134 @@
+{
+	"name": "transaction_raw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Azure_Datalake",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/DATALAKE"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "transaction_raw.xlsx",
+				"fileSystem": "datasource"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "String"
+			},
+			{
+				"name": "branch",
+				"type": "String"
+			},
+			{
+				"name": "city",
+				"type": "String"
+			},
+			{
+				"name": "nomor_resi",
+				"type": "String"
+			},
+			{
+				"name": "courier_name",
+				"type": "String"
+			},
+			{
+				"name": "send_date",
+				"type": "String"
+			},
+			{
+				"name": "send_from",
+				"type": "String"
+			},
+			{
+				"name": "send_to",
+				"type": "String"
+			},
+			{
+				"name": "sender",
+				"type": "String"
+			},
+			{
+				"name": "reciever",
+				"type": "String"
+			},
+			{
+				"name": "service_name",
+				"type": "String"
+			},
+			{
+				"name": "weight",
+				"type": "String"
+			},
+			{
+				"name": "latitude",
+				"type": "String"
+			},
+			{
+				"name": "longitude",
+				"type": "String"
+			},
+			{
+				"name": "item_category",
+				"type": "String"
+			},
+			{
+				"name": "amount",
+				"type": "String"
+			},
+			{
+				"name": "cogs",
+				"type": "String"
+			},
+			{
+				"name": "liquid",
+				"type": "String"
+			},
+			{
+				"name": "employeeNo",
+				"type": "String"
+			},
+			{
+				"name": "volume",
+				"type": "String"
+			},
+			{
+				"name": "payment_type",
+				"type": "String"
+			},
+			{
+				"name": "asuransi",
+				"type": "String"
+			},
+			{
+				"name": "item_value",
+				"type": "String"
+			},
+			{
+				"name": "telp_sender",
+				"type": "String"
+			},
+			{
+				"name": "telp_reciever",
+				"type": "String"
+			},
+			{
+				"name": "description",
+				"type": "String"
+			},
+			{
+				"name": "created_date",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

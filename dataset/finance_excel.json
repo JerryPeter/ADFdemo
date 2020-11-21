@@ -1,0 +1,57 @@
+{
+	"name": "finance_excel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_LocalFolder",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/LOCALFOLDER"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "finance.xlsx"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "id",
+				"type": "String"
+			},
+			{
+				"name": "branch",
+				"type": "String"
+			},
+			{
+				"name": "costcenter",
+				"type": "String"
+			},
+			{
+				"name": "transaction_date",
+				"type": "String"
+			},
+			{
+				"name": "description",
+				"type": "String"
+			},
+			{
+				"name": "amount",
+				"type": "String"
+			},
+			{
+				"name": "vendor",
+				"type": "String"
+			},
+			{
+				"name": "created_date",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

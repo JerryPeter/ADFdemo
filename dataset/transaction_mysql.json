@@ -1,0 +1,19 @@
+{
+	"name": "transaction_mysql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_MySQL",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/MYSQL"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "`transaction`"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

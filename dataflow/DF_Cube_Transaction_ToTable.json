@@ -1,0 +1,84 @@
+{
+	"name": "DF_Cube_Transaction_ToTable",
+	"properties": {
+		"folder": {
+			"name": "DEMO"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "transaction_mssql_az",
+						"type": "DatasetReference"
+					},
+					"name": "Transaction"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "PaymentMandiri_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "MandiriCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PayemntDana_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "DanaCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentNiaga_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "NiagaCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentCash_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "CashCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentOvo_cube",
+						"type": "DatasetReference"
+					},
+					"name": "OvoCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentBca_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "BcaCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentBni_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "BniCube"
+				},
+				{
+					"dataset": {
+						"referenceName": "PaymentOthers_Cube",
+						"type": "DatasetReference"
+					},
+					"name": "OthersCube"
+				}
+			],
+			"transformations": [
+				{
+					"name": "PaymentSplit"
+				}
+			],
+			"script": "source(output(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tisolationLevel: 'READ_UNCOMMITTED',\n\tformat: 'table') ~> Transaction\nTransaction split(payment_type == 'MANDIRI',\n\tpayment_type == 'DANA',\n\tpayment_type == 'NIAGA',\n\tpayment_type == 'CASH',\n\tpayment_type == 'OVO',\n\tpayment_type == 'BCA',\n\tpayment_type == 'BNI',\n\tdisjoint: false) ~> PaymentSplit@(MandiriPayment, DanaPayment, NiagaPayment, CashPayment, OvoPayment, BcaPayment, BniPayment, OthersPayment)\nPaymentSplit@MandiriPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> MandiriCube\nPaymentSplit@DanaPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> DanaCube\nPaymentSplit@NiagaPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> NiagaCube\nPaymentSplit@CashPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> CashCube\nPaymentSplit@OvoPayment sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> OvoCube\nPaymentSplit@BcaPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> BcaCube\nPaymentSplit@BniPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> BniCube\nPaymentSplit@OthersPayment sink(input(\n\t\tid as integer,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as timestamp,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as decimal(7,2),\n\t\tlatitude as decimal(18,6),\n\t\tlongitude as decimal(18,6),\n\t\titem_category as string,\n\t\tamount as decimal(18,2),\n\t\tcogs as decimal(18,2),\n\t\tliquid as integer,\n\t\temployeeNo as string,\n\t\tvolume as decimal(6,2),\n\t\tpayment_type as string,\n\t\tasuransi as integer,\n\t\titem_value as decimal(18,2),\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as timestamp,\n\t\tsynch_date as timestamp,\n\t\tsource as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> OthersCube"
+		}
+	}
+}

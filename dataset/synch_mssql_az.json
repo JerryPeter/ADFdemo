@@ -1,0 +1,36 @@
+{
+	"name": "synch_mssql_az",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Azure_Ms_SQL_Server",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/MSSQL_AZURE"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "synch_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "tablename",
+				"type": "varchar"
+			},
+			{
+				"name": "last_synch",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "synch"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

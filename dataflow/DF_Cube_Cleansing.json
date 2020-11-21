@@ -1,0 +1,56 @@
+{
+	"name": "DF_Cube_Cleansing",
+	"properties": {
+		"folder": {
+			"name": "DEMO"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "transaction_raw",
+						"type": "DatasetReference"
+					},
+					"name": "TransactionRaw"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "CleansingData",
+						"type": "DatasetReference"
+					},
+					"name": "EmptyBranch"
+				},
+				{
+					"dataset": {
+						"referenceName": "CleansingData",
+						"type": "DatasetReference"
+					},
+					"name": "EmptyCity"
+				},
+				{
+					"dataset": {
+						"referenceName": "CleansingData",
+						"type": "DatasetReference"
+					},
+					"name": "EmptyCourier"
+				},
+				{
+					"dataset": {
+						"referenceName": "CleansingData",
+						"type": "DatasetReference"
+					},
+					"name": "CleanData"
+				}
+			],
+			"transformations": [
+				{
+					"name": "CleansingNullData"
+				}
+			],
+			"script": "source(output(\n\t\tid as string,\n\t\tbranch as string,\n\t\tcity as string,\n\t\tnomor_resi as string,\n\t\tcourier_name as string,\n\t\tsend_date as string,\n\t\tsend_from as string,\n\t\tsend_to as string,\n\t\tsender as string,\n\t\treciever as string,\n\t\tservice_name as string,\n\t\tweight as string,\n\t\tlatitude as string,\n\t\tlongitude as string,\n\t\titem_category as string,\n\t\tamount as string,\n\t\tcogs as string,\n\t\tliquid as string,\n\t\temployeeNo as string,\n\t\tvolume as string,\n\t\tpayment_type as string,\n\t\tasuransi as string,\n\t\titem_value as string,\n\t\ttelp_sender as string,\n\t\ttelp_reciever as string,\n\t\tdescription as string,\n\t\tcreated_date as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> TransactionRaw\nTransactionRaw split(isNull(branch),\n\tisNull(nomor_resi),\n\tisNull(courier_name),\n\tdisjoint: false) ~> CleansingNullData@(EmptyBranch, EmptyCity, EmptyCourier, CleanData)\nCleansingNullData@EmptyBranch sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['EmptyBranch'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> EmptyBranch\nCleansingNullData@EmptyCity sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['EmptyCity'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> EmptyCity\nCleansingNullData@EmptyCourier sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['EmptyCourier'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> EmptyCourier\nCleansingNullData@CleanData sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tpartitionFileNames:['CleanData'],\n\tpartitionBy('hash', 1),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> CleanData"
+		}
+	}
+}

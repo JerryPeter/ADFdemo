@@ -1,0 +1,6 @@
+{
+	"name": "IRonPremisesServer",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

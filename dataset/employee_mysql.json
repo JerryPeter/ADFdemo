@@ -1,0 +1,19 @@
+{
+	"name": "employee_mysql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_MySQL",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/MYSQL"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": [],
+		"typeProperties": {
+			"tableName": "`employee`"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

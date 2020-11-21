@@ -1,0 +1,159 @@
+{
+	"name": "PaymentNiaga_Cube",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Azure_Ms_SQL_Server_Cube",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "DEMO/CUBE"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "branch",
+				"type": "varchar"
+			},
+			{
+				"name": "city",
+				"type": "varchar"
+			},
+			{
+				"name": "nomor_resi",
+				"type": "varchar"
+			},
+			{
+				"name": "courier_name",
+				"type": "varchar"
+			},
+			{
+				"name": "send_date",
+				"type": "datetime2",
+				"scale": 7
+			},
+			{
+				"name": "send_from",
+				"type": "varchar"
+			},
+			{
+				"name": "send_to",
+				"type": "varchar"
+			},
+			{
+				"name": "sender",
+				"type": "varchar"
+			},
+			{
+				"name": "reciever",
+				"type": "varchar"
+			},
+			{
+				"name": "service_name",
+				"type": "varchar"
+			},
+			{
+				"name": "weight",
+				"type": "decimal",
+				"precision": 7,
+				"scale": 2
+			},
+			{
+				"name": "latitude",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "longitude",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 6
+			},
+			{
+				"name": "item_category",
+				"type": "varchar"
+			},
+			{
+				"name": "amount",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "cogs",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "liquid",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "employeeNo",
+				"type": "varchar"
+			},
+			{
+				"name": "volume",
+				"type": "decimal",
+				"precision": 6,
+				"scale": 2
+			},
+			{
+				"name": "payment_type",
+				"type": "varchar"
+			},
+			{
+				"name": "asuransi",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "item_value",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "telp_sender",
+				"type": "varchar"
+			},
+			{
+				"name": "telp_reciever",
+				"type": "varchar"
+			},
+			{
+				"name": "description",
+				"type": "varchar"
+			},
+			{
+				"name": "created_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "synch_date",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "source",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "niaga"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

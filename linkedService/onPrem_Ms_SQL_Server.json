@@ -1,0 +1,16 @@
+{
+	"name": "onPrem_Ms_SQL_Server",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=False;data source=NB-JERRY;initial catalog=dwdemo;user id=sa",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI2YzkyNmE1NS0xZmI5LTRiOWYtOGFjOS0xMDI5YTc4OGY3N2YiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "IRonPremisesServer",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
