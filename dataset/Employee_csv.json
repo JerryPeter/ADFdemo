@@ -1,0 +1,29 @@
+{
+	"name": "Employee_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "onPrem_LocalFolder",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "employee.xlsx",
+				"folderPath": "DATA"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
