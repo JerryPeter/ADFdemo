@@ -1,0 +1,649 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfjne"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_Transaction_IncrementalLoad')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "lastSynch",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "select last_synch from synch where tablename = 'transaction'",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "synch_mssql_az",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "updateSynch",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"sqlReaderQuery": "SELECT MAX(created_Date) as updateSynch\n  FROM [DWdemo].[dbo].[transaction]",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "employee_mssql",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						}
+					},
+					{
+						"name": "CopyData_Transaction_mssql_incremental",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "lastSynch",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "updateSynch",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"additionalColumns": [
+									{
+										"name": "source",
+										"value": "INCRMTL"
+									},
+									{
+										"name": "synch_date",
+										"value": {
+											"value": "@utcnow()",
+											"type": "Expression"
+										}
+									}
+								],
+								"sqlReaderQuery": {
+									"value": "SELECT *\n  FROM [dbo].[transaction]\nWHERE created_date> '@{activity('lastSynch').output.firstRow.last_synch}'",
+									"type": "Expression"
+								},
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "AzureSqlSink"
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "branch",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "branch",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "city",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "city",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "nomor_resi",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "nomor_resi",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "courier_name",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "courier_name",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "send_date",
+											"type": "DateTime",
+											"physicalType": "datetime2"
+										},
+										"sink": {
+											"name": "send_date",
+											"type": "DateTime",
+											"physicalType": "datetime2"
+										}
+									},
+									{
+										"source": {
+											"name": "send_from",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "send_from",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "send_to",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "send_to",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "sender",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "sender",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "reciever",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "reciever",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "service_name",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "service_name",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "weight",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 7
+										},
+										"sink": {
+											"name": "weight",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 7
+										}
+									},
+									{
+										"source": {
+											"name": "latitude",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 6,
+											"precision": 18
+										},
+										"sink": {
+											"name": "latitude",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 6,
+											"precision": 18
+										}
+									},
+									{
+										"source": {
+											"name": "longitude",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 6,
+											"precision": 18
+										},
+										"sink": {
+											"name": "longitude",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 6,
+											"precision": 18
+										}
+									},
+									{
+										"source": {
+											"name": "item_category",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "item_category",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "amount",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										},
+										"sink": {
+											"name": "amount",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										}
+									},
+									{
+										"source": {
+											"name": "cogs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										},
+										"sink": {
+											"name": "cogs",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										}
+									},
+									{
+										"source": {
+											"name": "liquid",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "liquid",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "employeeNo",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "employeeNo",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "volume",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 6
+										},
+										"sink": {
+											"name": "volume",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 6
+										}
+									},
+									{
+										"source": {
+											"name": "payment_type",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "payment_type",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "asuransi",
+											"type": "Int32",
+											"physicalType": "int"
+										},
+										"sink": {
+											"name": "asuransi",
+											"type": "Int32",
+											"physicalType": "int"
+										}
+									},
+									{
+										"source": {
+											"name": "item_value",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										},
+										"sink": {
+											"name": "item_value",
+											"type": "Decimal",
+											"physicalType": "decimal",
+											"scale": 2,
+											"precision": 18
+										}
+									},
+									{
+										"source": {
+											"name": "telp_sender",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "telp_sender",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "telp_reciever",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "telp_reciever",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "description",
+											"type": "String",
+											"physicalType": "varchar"
+										},
+										"sink": {
+											"name": "description",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									},
+									{
+										"source": {
+											"name": "created_date",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										},
+										"sink": {
+											"name": "created_date",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "synch_date"
+										},
+										"sink": {
+											"name": "synch_date",
+											"type": "DateTime",
+											"physicalType": "datetime"
+										}
+									},
+									{
+										"source": {
+											"name": "source"
+										},
+										"sink": {
+											"name": "source",
+											"type": "String",
+											"physicalType": "varchar"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "transaction_mssql",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "transaction_mssql_az",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "UpdateDataLastSynch",
+						"type": "SqlServerStoredProcedure",
+						"dependsOn": [
+							{
+								"activity": "CopyData_Transaction_mssql_incremental",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"storedProcedureName": "[[dbo].[sp_update_lastsynch]",
+							"storedProcedureParameters": {
+								"tablename": {
+									"value": "transaction",
+									"type": "String"
+								},
+								"last_synch": {
+									"value": {
+										"value": "@activity('updateSynch').output.firstRow.updateSynch",
+										"type": "Expression"
+									},
+									"type": "Datetime"
+								}
+							}
+						},
+						"linkedServiceName": {
+							"referenceName": "Azure_Ms_SQL_Server",
+							"type": "LinkedServiceReference"
+						}
+					}
+				],
+				"folder": {
+					"name": "DEMO/DATA FLOW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2020-11-10T11:03:11Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_Transaction_cube_table')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DF_Cube_Transaction_ToTable",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "DF_Cube_Transaction_ToTable",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Transaction": {},
+									"MandiriCube": {},
+									"DanaCube": {},
+									"NiagaCube": {},
+									"CashCube": {},
+									"OvoCube": {},
+									"BcaCube": {},
+									"BniCube": {},
+									"OthersCube": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"folder": {
+					"name": "DEMO/DATA FLOW"
+				},
+				"annotations": [],
+				"lastPublishTime": "2020-11-10T05:43:25Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DailySchedule')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "Pipeline_Employee",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Day",
+						"interval": 1,
+						"startTime": "2020-11-15T23:00:00",
+						"timeZone": "SE Asia Standard Time",
+						"schedule": {
+							"minutes": [
+								9
+							],
+							"hours": [
+								15
+							]
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}

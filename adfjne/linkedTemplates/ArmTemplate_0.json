@@ -1,0 +1,1831 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfjne"
+		},
+		"Azure_Datalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Azure_Datalake'"
+		},
+		"Azure_Ms_SQL_Server_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Azure_Ms_SQL_Server'"
+		},
+		"Azure_Ms_SQL_Server_Cube_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Azure_Ms_SQL_Server_Cube'"
+		},
+		"Azure_Datalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://datalakejne.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/Pipeline_Github')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "WaitPending",
+						"type": "Wait",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"waitTimeInSeconds": 1
+						}
+					}
+				],
+				"annotations": []
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Azure_Datalake')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('Azure_Datalake_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('Azure_Datalake_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Azure_Ms_SQL_Server')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('Azure_Ms_SQL_Server_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Azure_Ms_SQL_Server_Cube')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('Azure_Ms_SQL_Server_Cube_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/IRonPremisesServer')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CleansingData')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Datalake",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CLEANSING"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "datacleansing"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Datalake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PayemntDana_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "dana"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentBca_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bca"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentBni_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "bni"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentCash_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "cash"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentMandiri_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "mandiri"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentNiaga_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "niaga"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentOthers_Cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "others"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/PaymentOvo_cube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server_Cube",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/CUBE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "ovo"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server_Cube')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/datacube')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Datalake",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/DATALAKE"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "datacube"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Datalake')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/employee_mssql_az')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/MSSQL_AZURE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employee_name",
+						"type": "varchar"
+					},
+					{
+						"name": "birthdate",
+						"type": "date"
+					},
+					{
+						"name": "birthplace",
+						"type": "varchar"
+					},
+					{
+						"name": "martial_status",
+						"type": "varchar"
+					},
+					{
+						"name": "sex",
+						"type": "varchar"
+					},
+					{
+						"name": "child",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "working_year",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "job_position",
+						"type": "varchar"
+					},
+					{
+						"name": "job_level",
+						"type": "varchar"
+					},
+					{
+						"name": "work_location",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "employee"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/finance_mssql_az')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/MSSQL_AZURE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "costcenter",
+						"type": "varchar"
+					},
+					{
+						"name": "transaction_date",
+						"type": "date"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "vendor",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "finance"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/synch_mssql_az')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/MSSQL_AZURE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "synch_id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "tablename",
+						"type": "varchar"
+					},
+					{
+						"name": "last_synch",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "synch"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/transaction_mssql_az')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Ms_SQL_Server",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/MSSQL_AZURE"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "id",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "branch",
+						"type": "varchar"
+					},
+					{
+						"name": "city",
+						"type": "varchar"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "varchar"
+					},
+					{
+						"name": "courier_name",
+						"type": "varchar"
+					},
+					{
+						"name": "send_date",
+						"type": "datetime2",
+						"scale": 7
+					},
+					{
+						"name": "send_from",
+						"type": "varchar"
+					},
+					{
+						"name": "send_to",
+						"type": "varchar"
+					},
+					{
+						"name": "sender",
+						"type": "varchar"
+					},
+					{
+						"name": "reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "service_name",
+						"type": "varchar"
+					},
+					{
+						"name": "weight",
+						"type": "decimal",
+						"precision": 7,
+						"scale": 2
+					},
+					{
+						"name": "latitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "longitude",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 6
+					},
+					{
+						"name": "item_category",
+						"type": "varchar"
+					},
+					{
+						"name": "amount",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cogs",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "liquid",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "employeeNo",
+						"type": "varchar"
+					},
+					{
+						"name": "volume",
+						"type": "decimal",
+						"precision": 6,
+						"scale": 2
+					},
+					{
+						"name": "payment_type",
+						"type": "varchar"
+					},
+					{
+						"name": "asuransi",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "item_value",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "telp_sender",
+						"type": "varchar"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "varchar"
+					},
+					{
+						"name": "description",
+						"type": "varchar"
+					},
+					{
+						"name": "created_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "synch_date",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "source",
+						"type": "varchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "transaction"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Ms_SQL_Server')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/transaction_raw')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "Azure_Datalake",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "DEMO/DATALAKE"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "transaction_raw.xlsx",
+						"fileSystem": "datasource"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "id",
+						"type": "String"
+					},
+					{
+						"name": "branch",
+						"type": "String"
+					},
+					{
+						"name": "city",
+						"type": "String"
+					},
+					{
+						"name": "nomor_resi",
+						"type": "String"
+					},
+					{
+						"name": "courier_name",
+						"type": "String"
+					},
+					{
+						"name": "send_date",
+						"type": "String"
+					},
+					{
+						"name": "send_from",
+						"type": "String"
+					},
+					{
+						"name": "send_to",
+						"type": "String"
+					},
+					{
+						"name": "sender",
+						"type": "String"
+					},
+					{
+						"name": "reciever",
+						"type": "String"
+					},
+					{
+						"name": "service_name",
+						"type": "String"
+					},
+					{
+						"name": "weight",
+						"type": "String"
+					},
+					{
+						"name": "latitude",
+						"type": "String"
+					},
+					{
+						"name": "longitude",
+						"type": "String"
+					},
+					{
+						"name": "item_category",
+						"type": "String"
+					},
+					{
+						"name": "amount",
+						"type": "String"
+					},
+					{
+						"name": "cogs",
+						"type": "String"
+					},
+					{
+						"name": "liquid",
+						"type": "String"
+					},
+					{
+						"name": "employeeNo",
+						"type": "String"
+					},
+					{
+						"name": "volume",
+						"type": "String"
+					},
+					{
+						"name": "payment_type",
+						"type": "String"
+					},
+					{
+						"name": "asuransi",
+						"type": "String"
+					},
+					{
+						"name": "item_value",
+						"type": "String"
+					},
+					{
+						"name": "telp_sender",
+						"type": "String"
+					},
+					{
+						"name": "telp_reciever",
+						"type": "String"
+					},
+					{
+						"name": "description",
+						"type": "String"
+					},
+					{
+						"name": "created_date",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/Azure_Datalake')]"
+			]
+		}
+	]
+}

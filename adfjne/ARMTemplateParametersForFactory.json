@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adfjne"
+		},
+		"Azure_Datalake_accountKey": {
+			"value": ""
+		},
+		"Azure_Ms_SQL_Server_connectionString": {
+			"value": ""
+		},
+		"Azure_Ms_SQL_Server_Cube_connectionString": {
+			"value": ""
+		},
+		"onPrem_LocalFolder_password": {
+			"value": ""
+		},
+		"onPrem_Ms_SQL_Server_connectionString": {
+			"value": ""
+		},
+		"onPrem_MySQL_connectionString": {
+			"value": ""
+		},
+		"Azure_Datalake_properties_typeProperties_url": {
+			"value": "https://datalakejne.dfs.core.windows.net"
+		},
+		"onPrem_LocalFolder_properties_typeProperties_host": {
+			"value": "d:\\dfdemo"
+		},
+		"onPrem_LocalFolder_properties_typeProperties_userId": {
+			"value": "MAILBIT\\Jerry"
+		}
+	}
+}

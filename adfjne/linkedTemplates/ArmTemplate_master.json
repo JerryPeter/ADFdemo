@@ -1,0 +1,145 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adfjne"
+		},
+		"Azure_Datalake_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'Azure_Datalake'"
+		},
+		"Azure_Ms_SQL_Server_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Azure_Ms_SQL_Server'"
+		},
+		"Azure_Ms_SQL_Server_Cube_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'Azure_Ms_SQL_Server_Cube'"
+		},
+		"onPrem_LocalFolder_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'onPrem_LocalFolder'"
+		},
+		"onPrem_Ms_SQL_Server_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'onPrem_Ms_SQL_Server'"
+		},
+		"onPrem_MySQL_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'onPrem_MySQL'"
+		},
+		"Azure_Datalake_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://datalakejne.dfs.core.windows.net"
+		},
+		"onPrem_LocalFolder_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "d:\\dfdemo"
+		},
+		"onPrem_LocalFolder_properties_typeProperties_userId": {
+			"type": "string",
+			"defaultValue": "MAILBIT\\Jerry"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adfjne_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"Azure_Datalake_accountKey": {
+						"value": "[parameters('Azure_Datalake_accountKey')]"
+					},
+					"Azure_Ms_SQL_Server_connectionString": {
+						"value": "[parameters('Azure_Ms_SQL_Server_connectionString')]"
+					},
+					"Azure_Ms_SQL_Server_Cube_connectionString": {
+						"value": "[parameters('Azure_Ms_SQL_Server_Cube_connectionString')]"
+					},
+					"Azure_Datalake_properties_typeProperties_url": {
+						"value": "[parameters('Azure_Datalake_properties_typeProperties_url')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adfjne_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"onPrem_LocalFolder_password": {
+						"value": "[parameters('onPrem_LocalFolder_password')]"
+					},
+					"onPrem_Ms_SQL_Server_connectionString": {
+						"value": "[parameters('onPrem_Ms_SQL_Server_connectionString')]"
+					},
+					"onPrem_MySQL_connectionString": {
+						"value": "[parameters('onPrem_MySQL_connectionString')]"
+					},
+					"onPrem_LocalFolder_properties_typeProperties_host": {
+						"value": "[parameters('onPrem_LocalFolder_properties_typeProperties_host')]"
+					},
+					"onPrem_LocalFolder_properties_typeProperties_userId": {
+						"value": "[parameters('onPrem_LocalFolder_properties_typeProperties_userId')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adfjne_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "adfjne_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adfjne_ArmTemplate_1')]"
+			]
+		}
+	]
+}
